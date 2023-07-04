@@ -4,7 +4,7 @@ const EchoCharacteristic = require('./characteristic');
 bleno.on('stateChange', function(state) {
   console.log('Initialisation : ' + state);
   if (state === 'poweredOn') {
-    bleno.startAdvertising('Echo', ['hp-001']);
+    bleno.startAdvertising('Echo', ['ec00']);
   } else {
     bleno.stopAdvertising();
   }
@@ -15,7 +15,7 @@ bleno.on('advertisingStart', function(error) {
   if (!error) {
     bleno.setServices([
       new bleno.PrimaryService({
-        uuid: 'hp-001',
+        uuid: 'ec00',
         characteristics: [
           new EchoCharacteristic()
         ]

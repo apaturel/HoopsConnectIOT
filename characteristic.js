@@ -5,7 +5,7 @@ var BlenoCharacteristic = bleno.Characteristic;
 class EchoCharacteristic extends BlenoCharacteristic {
   constructor() {
     super({
-      uuid: 'hp001',
+      uuid: 'ec0e',
       properties: ['read', 'write', 'notify'],
       value: null
     });
@@ -23,11 +23,9 @@ class EchoCharacteristic extends BlenoCharacteristic {
     if (receivedData.type == 'START_GAME') {
       console.log('data: ', JSON.parse(receivedData.data.toString()));
     }
-  
-    callback(this.RESULT_SUCCESS);
   }
 
-  onSubscribe(updateValueCallback) {
+  onSubscribe(maxValueSize, updateValueCallback) {
     console.log('Appareil Mobile Connecté');
     this._updateValueCallback = updateValueCallback;
     
