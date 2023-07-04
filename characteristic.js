@@ -5,7 +5,7 @@ var BlenoCharacteristic = bleno.Characteristic;
 class EchoCharacteristic extends BlenoCharacteristic {
   constructor() {
     super({
-      uuid: 'ec0e',
+      uuid: 'hp001',
       properties: ['read', 'write', 'notify'],
       value: null
     });
@@ -14,41 +14,45 @@ class EchoCharacteristic extends BlenoCharacteristic {
     this._updateValueCallback = null;
   }
 
-  onWriteRequest(data, offset, withoutResponse, callback) {
+  onWriteRequest(data, callback) {
     this._value = data;
     let jsonString = this._value.toString();
     let receivedData = JSON.parse(jsonString);
     console.log('Received data: ', receivedData);
 
+    if (receivedData.type == 'START_GAME') {
+      console.log('data: ', JSON.parse(receivedData.data.toString()));
+    }
+  
     callback(this.RESULT_SUCCESS);
   }
 
-  onSubscribe(maxValueSize, updateValueCallback) {
-    console.log('EchoCharacteristic - onSubscribe');
+  onSubscribe(updateValueCallback) {
+    console.log('Appareil Mobile Connecté');
     this._updateValueCallback = updateValueCallback;
     
     // Send "Hello, Swift!" notification every 5 seconds
     this.intervalId = setInterval(() => {
       let game = {
         id: "1",
-        score: 180,
         date: "27/06/2023",
-        playerId : "1"
+        score: 180,
+        playerId: "1"
       };
-	    let data = {
-	      type: "GAME",
-	      data: JSON.stringify(game)
+        let data = {
+          type: "GAME",
+          data: JSON.stringify(game)
       };
-	    let jsonString = JSON.stringify(data);
-	    let buffer = Buffer.from(jsonString);
-	    if(this._updateValueCallback) {
-	      this._updateValueCallback(buffer);
+        let jsonString = JSON.stringify(data);
+        let buffer = Buffer.from(jsonString);
+        if(this._updateValueCallback) {
+          this._updateValueCallback(buffer);
       }
-    },1000);
+    }, 5000);
   }
 
   onUnsubscribe() {
-    console.log('EchoCharacteristic - onUnsubscribe');
+    console.log('Appareil Mobile Déconnecté');
     this._updateValueCallback = null;
     
     // Stop sending notifications when client unsubscribes
