@@ -19,7 +19,7 @@ class EchoCharacteristic extends BlenoCharacteristic {
     let jsonString = this._value.toString();
     let receivedData = JSON.parse(jsonString);
     console.log('Received data: ', receivedData);
-  
+
     callback(this.RESULT_SUCCESS);
   }
 
@@ -29,16 +29,22 @@ class EchoCharacteristic extends BlenoCharacteristic {
     
     // Send "Hello, Swift!" notification every 5 seconds
     this.intervalId = setInterval(() => {
-	let data = {
-	  key1: "Pierre j'ai faim",
-	  key2: 69
-        };
-	let jsonString = JSON.stringify(data);
-	let buffer = Buffer.from(jsonString);
-	if(this._updateValueCallback) {
-	  this._updateValueCallback(buffer);
-        }
-    }, 5000);
+      let game = {
+        id: "1",
+        score: 180,
+        date: "27/06/2023",
+        playerId : "1"
+      };
+	    let data = {
+	      type: "GAME",
+	      data: JSON.stringify(game)
+      };
+	    let jsonString = JSON.stringify(data);
+	    let buffer = Buffer.from(jsonString);
+	    if(this._updateValueCallback) {
+	      this._updateValueCallback(buffer);
+      }
+    },1000);
   }
 
   onUnsubscribe() {
