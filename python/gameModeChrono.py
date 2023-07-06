@@ -2,6 +2,7 @@ import serial
 import time
 import random
 import json
+import sys
 
 ser = serial.Serial('/dev/ttyS0', 9600)
 time.sleep(2)
@@ -18,21 +19,20 @@ dataMotor = {
     }
 }
 
+
 class Game:
     def __init__(self, duration):
         self.duration = duration
         self.start_time = time.time()
-        self.score = 0
         self.positions = [0,0]
+        self.score = 0
 
 
     def is_game_over(self):
         return time.time() - self.start_time >= self.duration
 
-    def update_score(self, points):
-        self.score += points
-
     def move_basket(self, action, level):
+        
         old_positions = self.positions.copy()
         dataToArduino = dataMotor
         new_positionX = None
@@ -98,16 +98,14 @@ class Game:
     def play(self):
         self.move_basket('initialisation', 0)
         while not self.is_game_over():
-            time.sleep(10)
+            #time.sleep(10)
             self.move_basket('move', 1)
             self.move_basket('move', 2)
             self.move_basket('move', 3)
             self.move_basket('move', 4)
             self.move_basket('move', 5)
+        return self
 
-        return self.score
-
-
-game = Game(60)  # Crée un nouveau jeu qui dure 60 secondes
-score = game.play()
-print(json.dumps({"score": score}))
+# Crée un nouveau jeu qui dure 60 secondes
+gameObject = Game(2).play()
+print(json.dumps({'score': gameObject.score}))

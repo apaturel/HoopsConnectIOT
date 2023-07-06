@@ -19,47 +19,57 @@ class EchoCharacteristic extends BlenoCharacteristic {
     
     let jsonString = this._value.toString();
     let receivedData = JSON.parse(jsonString);
-    console.log('Received data: ', receivedData);
+    console.log(receivedData);
 
-    if (receivedData.type == 'GAME') {
-
-      exec('python3 ../python/gameModeChrono.py', (error, stdout, stderr) => {
-        if (error) {
-          console.log(`Error: ${error.message}`);
-          return;
+    switch (receivedData.type) {
+      case 'CONNECTED':
+        let dataDevice = JSON.parse(receivedData.data);
+        console.log("Nom de l'appareil : " + dataDevice["deviceName"]);
+        break;
+      case 'START_GAME':
+        let dataGame = JSON.parse(receivedData.data);  // Pas besoin de parser à nouveau
+        switch (dataGame["mode"]) {
+          case "CHRONO":
+            exec(`python3 ../python/gameModeChrono.py`, (error, stdout, stderr) => {
+              console.log('Lancement de la partie...');
+              if (error) {
+                console.log(`Error: ${error.message}`);
+                return;
+              }
+      
+              if (stderr) {
+                console.log(`stderr: ${stderr}`);
+                return;
+              }
+              let score = JSON.parse(stdout).score;
+      
+              let now = new Date();
+              let formattedDate = now.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+      
+              let game = {
+                id: "1",
+                date: formattedDate,
+                score: score,
+                playerId: dataGame["playerId"]
+              };
+      
+              let finalData = {
+                type: "GAME",
+                data: JSON.stringify(game)
+              };
+              console.log('Fin de la partie...')
+              this._updateValueCallback(Buffer.from(JSON.stringify(finalData)));
+            });
+            break;
         }
+      break;
 
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-
-        let score = JSON.parse(stdout).score;
-
-        let now = new Date();
-        let formattedDate = now.toLocaleString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        let game = {
-          id: "1",
-          date: formattedDate,
-          score: score,
-          playerId: "1"
-        };
-
-        let finalData = {
-          type: "GAME",
-          data: JSON.stringify(game)
-        };
-        console.log(finalData);
-
-        this._updateValueCallback(Buffer.from(JSON.stringify(finalData)));
-      });
     }
 
     callback(this.RESULT_SUCCESS);
@@ -72,13 +82,13 @@ class EchoCharacteristic extends BlenoCharacteristic {
   }
 
   onSubscribe(maxValueSize, updateValueCallback) {
-    console.log('Appareil Mobile Connecté');
+    console.log('Connexion...');
 
     this._updateValueCallback = updateValueCallback;
   }
 
   onUnsubscribe() {
-    console.log('Appareil Mobile Déconnecté');
+    console.log('...Déconnexion');
 
     this._updateValueCallback = null;
   }
