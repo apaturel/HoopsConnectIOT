@@ -36,9 +36,18 @@ class EchoCharacteristic extends BlenoCharacteristic {
 
         let score = JSON.parse(stdout).score;
 
+        let now = new Date();
+        let formattedDate = now.toLocaleString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
         let game = {
           id: "1",
-          date: "27/06/2023",
+          date: formattedDate,
           score: score,
           playerId: "1"
         };
