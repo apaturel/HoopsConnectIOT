@@ -42,12 +42,28 @@ gameModes.set('CHRONO', (dataGame, characteristicInstance) => {
         data: JSON.stringify(game)
       };
 
-      console.log(finalData);
+      let finalDataString = JSON.stringify(finalData);
+      let chunks = chunkSubstr(finalDataString, 20);
+
+      chunks.forEach(chunk => {
+        console.log(chunk);
+        characteristicInstance._updateValueCallback(Buffer.from(chunk));
+      });
 
       console.log('Fin de la partie...')
-      characteristicInstance._updateValueCallback(Buffer.from(JSON.stringify(finalData)));
     });
 });
+
+function chunkSubstr(str, size) {
+  const numChunks = Math.ceil(str.length / size);
+  const chunks = new Array(numChunks);
+  
+  for(let i = 0, o = 0; i < numChunks; ++i, o += size) {
+    chunks[i] = str.substr(o, size);
+  }
+
+  return chunks;
+}
 
 const commands = new Map();
 
